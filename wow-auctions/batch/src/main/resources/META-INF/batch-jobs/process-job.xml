@@ -1,0 +1,56 @@
+<job id="processJob" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0">
+    <properties>
+        <property name="api.blizzard.region" value="#{jobParameters['api.blizzard.region']}"/>
+        <property name="connectedRealmId" value="#{jobParameters['connectedRealmId']}"/>
+    </properties>
+
+    <step id="downloadAuctionFilesStep" next="moveFileToTempInput">
+        <batchlet ref="downloadAuctionFileBatchlet">
+            <properties>
+                <property name="api.blizzard.region" value="#{jobParameters['api.blizzard.region']}"/>
+                <property name="wow.batch.download.to" value="FI"/>
+            </properties>
+        </batchlet>
+    </step>
+
+    <step id="moveFileToTempInput" next="processFile">
+        <batchlet ref="moveFileBatchlet">
+            <properties>
+                <property name="wow.batch.download.from" value="FI"/>
+                <property name="wow.batch.download.to" value="FI_TMP"/>
+            </properties>
+        </batchlet>
+    </step>
+
+    <step id="processFile" next="moveFileToProcessed">
+        <chunk item-count="100">
+            <reader ref="auctionDataItemReader"/>
+            <processor ref="auctionDataItemProcessor"/>
+            <writer ref="auctionDataItemWriter"/>
+        </chunk>
+    </step>
+
+    <step id="moveFileToProcessed" next="importStatistics">
+        <batchlet ref="moveFileBatchlet">
+            <properties>
+                <property name="wow.batch.download.from" value="FI_TMP"/>
+                <property name="wow.batch.download.to" value="FP"/>
+            </properties>
+        </batchlet>
+    </step>
+
+    <step id="importStatistics">
+        <chunk item-count="100">
+            <reader ref="processedAuctionsReader"/>
+            <processor ref="processedAuctionsProcessor"/>
+            <writer ref="processedAuctionsWriter"/>
+        </chunk>
+    </step>
+
+    <!--
+    <step id="purgeProcessedAuctions">
+        <batchlet ref="purgeRawAuctionDataBatchlet"/>
+    </step>
+    -->
+
+</job>

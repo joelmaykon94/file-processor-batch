@@ -1,0 +1,29 @@
+body {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.search {
+    width: 20%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.item {
+    text-align: left;
+}
+
+.grid {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.gridStyle {
+    border: 1px solid rgb(212, 212, 212);
+    height: 200px;
+}
