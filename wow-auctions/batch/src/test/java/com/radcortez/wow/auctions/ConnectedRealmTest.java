@@ -1,8 +1,8 @@
-package com.radcortez.wow.auctions.entity;
+package com.radcortez.wow.auctions;
 
 import com.radcortez.flyway.test.annotation.DataSource;
 import com.radcortez.flyway.test.annotation.FlywayTest;
-import com.radcortez.wow.auctions.QuarkusDataSourceProvider;
+import com.radcortez.wow.auctions.entity.*;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

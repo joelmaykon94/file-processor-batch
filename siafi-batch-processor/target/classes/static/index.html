@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIAFI - Batch Integration Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- LOGIN SCREEN OVERLAY -->
+    <div class="login-overlay" id="login-screen">
+        <div class="login-card">
+            <div class="login-logo">
+                <div class="logo-icon">S</div>
+                <span>SIAFI BATCH</span>
+            </div>
+            <h2>Acessar Painel Integrado</h2>
+            <p>Conecte-se ao barramento de serviços batch do Tesouro Nacional</p>
+            
+            <form onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label for="username">Usuário (CPF ou E-mail)</label>
+                    <input type="text" id="username" placeholder="Digite seu CPF ou E-mail" required value="alex.rocha@tesouro.gov.br">
+                </div>
+                <div class="input-group">
+                    <label for="password">Senha Operacional</label>
+                    <input type="password" id="password" placeholder="••••••••" required value="password123">
+                </div>
+                <button type="submit" class="btn">Entrar no Sistema</button>
+            </form>
+            <div class="login-footer">SIAFI Web • Ambiente de Homologação</div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <div class="dashboard-layout" id="dashboard-app" style="display: none;">
+        
+        <!-- SIDEBAR (LEFT NAVIGATION MENU) -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <div class="logo-icon">S</div>
+                <div class="logo-text">
+                    <span class="logo-title">SIAFI</span>
+                    <span class="logo-sub">BATCH INTEGRATION</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" onclick="navigate('overview', event)">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    Overview
+                </a>
+                <a href="#" class="nav-item" onclick="navigate('batches', event)">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                    Batches
+                </a>
+                <a href="#" class="nav-item" onclick="navigate('integration', event)">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                    Integration
+                </a>
+                <a href="#" class="nav-item" onclick="navigate('records', event)">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+                    Records
+                </a>
+                <a href="#" class="nav-item" onclick="navigate('settings', event)">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Settings
+                </a>
+                <a href="#" class="nav-item" onclick="navigate('logs', event)">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    Logs
+                </a>
+            </nav>
+
+            <!-- SIMULATION SYSTEM CONTROLS -->
+            <div class="simulation-panel">
+                <div class="sim-header">SIMULATION LAB</div>
+                <button class="sim-btn processing" onclick="triggerSimulation('PROCESSING')">⚡ Sim. Ingestão (Processando)</button>
+                <button class="sim-btn success" onclick="triggerSimulation('SUCCESS')">✅ Sim. Sucesso Lote</button>
+                <button class="sim-btn warning" onclick="triggerSimulation('PENDING')">⏳ Sim. Pendente Lote</button>
+                <button class="sim-btn danger" onclick="triggerSimulation('FAILED')">❌ Sim. Falha Lote</button>
+            </div>
+            
+            <div class="sidebar-footer">
+                <button class="btn btn-secondary btn-logout" onclick="handleLogout()">Sair do Sistema</button>
+            </div>
+        </aside>
+
+        <!-- MAIN DASHBOARD CONTENT AREA -->
+        <div class="main-content">
+            
+            <!-- TOP BAR HEADER -->
+            <header class="top-header">
+                <div class="top-nav-title">SIAFI BATCH INTEGRATION / <span id="section-title">Dashboard</span></div>
+                <div class="top-user-area">
+                    <div class="date-time">Den 20t, 2023 10:30 AM DT</div>
+                    <div class="bell-wrapper">
+                        <div class="icon-bell" onclick="toggleNotificationDropdown(event)">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                            <span class="notification-indicator" id="notif-badge" style="display: none;">0</span>
+                        </div>
+                        <div class="notif-dropdown" id="notif-dropdown">
+                            <div class="notif-header">
+                                <span>Notificações Recentes</span>
+                                <button onclick="markAllNotificationsAsRead(event)">Limpar</button>
+                            </div>
+                            <div class="notif-list" id="notif-list">
+                                <div class="notif-empty">Nenhuma notificação nova</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="user-profile">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop" alt="Alex Rocha" class="avatar">
+                        <span>ALEX R.</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- DASHBOARD SECTION: OVERVIEW -->
+            <div id="section-overview" class="section-container">
+                
+                <!-- TOP FOUR STATISTICS CARDS -->
+                <div class="stats-grid">
+                    <div class="card stat-box border-cyan">
+                        <div class="stat-lbl">Total Batches Processed</div>
+                        <div class="stat-val text-cyan" id="stat-total-processed">2,458</div>
+                    </div>
+                    <div class="card stat-box border-purple">
+                        <div class="stat-lbl">Active Loads</div>
+                        <div class="stat-val text-purple" id="stat-active-loads">12</div>
+                    </div>
+                    <div class="card stat-box border-amber">
+                        <div class="stat-lbl">Files Pending</div>
+                        <div class="stat-val text-amber" id="stat-files-pending">8</div>
+                    </div>
+                    <div class="card stat-box border-teal">
+                        <div class="stat-lbl">Database Records</div>
+                        <div class="stat-val text-teal" id="stat-database-records">845K</div>
+                    </div>
+                </div>
+
+                <!-- MAIN WORKSPACE ROWS -->
+                <div class="workspace-grid">
+                    
+                    <!-- LEFT COLUMN: DRAG & DROP ZONE -->
+                    <div class="card">
+                        <h3 class="card-title">FILE DRAG & DROP ZONE</h3>
+                        <div class="dropzone" id="file-dropzone">
+                            <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5h10.5a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0017.25 4.5H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25z"/></svg>
+                            <p id="dropzone-text">Drag & Drop Files Here or Click to Upload (Max 1GB)</p>
+                            <button class="btn" style="width: auto;" id="browse-btn">BROWSE FILES</button>
+                            <input type="file" id="file-input" class="file-input" accept=".xml,.csv">
+                        </div>
+                        <div class="watch-folder-detail">
+                            <span>Watch Folder:</span> <code id="watch-folder-path">Initializing watcher...</code>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: FILE PROCESSING STATISTICS -->
+                    <div class="card">
+                        <div class="card-header-flex">
+                            <h3 class="card-title">FILE PROCESSING STATISTICS</h3>
+                            <div class="stats-legend">
+                                <span class="legend-dot"></span> Current progress
+                            </div>
+                        </div>
+                        
+                        <div class="progress-container">
+                            <div class="progress-bar-glow" id="stat-progress-bar" style="width: 85%;"></div>
+                        </div>
+
+                        <!-- Statistics Graphs mockup bars -->
+                        <div class="stats-bars">
+                            <div class="bar-col"><div class="bar-fill" style="height: 45%;"></div></div>
+                            <div class="bar-col"><div class="bar-fill" style="height: 65%;"></div></div>
+                            <div class="bar-col"><div class="bar-fill" style="height: 85%;"></div></div>
+                            <div class="bar-col"><div class="bar-fill" style="height: 35%;"></div></div>
+                            <div class="bar-col"><div class="bar-fill" style="height: 55%;"></div></div>
+                            <div class="bar-col"><div class="bar-fill" style="height: 75%;"></div></div>
+                            <div class="bar-col"><div class="bar-fill" style="height: 90%;"></div></div>
+                            <div class="bar-col"><div class="bar-fill" style="height: 40%;"></div></div>
+                            <div class="bar-col"><div class="bar-fill" style="height: 50%;"></div></div>
+                            <div class="bar-col"><div class="bar-fill" style="height: 70%;"></div></div>
+                        </div>
+
+                        <!-- Metrics row -->
+                        <div class="metrics-row">
+                            <div class="metric-item">
+                                <div class="metric-val">24 MB/s</div>
+                                <div class="metric-val" id="stat-progress-percent">85%</div>
+                                <div class="metric-lbl">Current progress</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-val text-danger" id="stat-processing-errors">3</div>
+                                <div class="metric-lbl">Processing errors</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- BOTTOM HISTORY & EXPLORER ROWS -->
+                <div class="workspace-grid" style="margin-top: 2rem;">
+                    
+                    <!-- BOTTOM LEFT: ACTIVE BATCH LOAD HISTORY -->
+                    <div class="card">
+                        <h3 class="card-title">ACTIVE BATCH LOAD HISTORY</h3>
+                        <div class="table-wrapper">
+                            <table class="batch-table">
+                                <thead>
+                                    <tr>
+                                        <th>Batch ID</th>
+                                        <th>Filename</th>
+                                        <th>Status</th>
+                                        <th>Timestamp</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="active-history-rows">
+                                    <!-- Rows populated dynamically -->
+                                    <tr>
+                                        <td class="code-font">#SIB1024</td>
+                                        <td>data_export_05_23.xml</td>
+                                        <td><span class="badge badge-processing">Processing</span></td>
+                                        <td>10:45 AM</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- BOTTOM RIGHT: DATABASE RECORD EXPLORER -->
+                    <div class="card">
+                        <h3 class="card-title">DATABASE RECORD EXPLORER</h3>
+                        <div class="table-wrapper">
+                            <table class="batch-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Record Name</th>
+                                        <th>Value</th>
+                                        <th>Status</th>
+                                        <th>Last Updated</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="db-explorer-rows">
+                                    <!-- Rows populated dynamically -->
+                                    <tr>
+                                        <td class="code-font">11</td>
+                                        <td>FINANCIAL_ENTRY_100</td>
+                                        <td class="code-font">5,234.12</td>
+                                        <td><span class="badge badge-success">SUCCESS</span></td>
+                                        <td>2023-10-27 10:48</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- SUB SECTIONS -->
+            <div id="section-batches" class="section-container" style="display: none;">
+                <div class="card">
+                    <h3 class="card-title">SIAFI XML Batch History</h3>
+                    <div class="tab-nav" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
+                        <button class="tab-btn active" id="btn-tab-dh" onclick="toggleBatchSubTab('dh')">Documento Hábil (DH001)</button>
+                        <button class="tab-btn" id="btn-tab-pf" onclick="toggleBatchSubTab('pf')">Programação Financeira (PF001)</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="batch-table" id="db-batches-full-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Arquivo</th>
+                                    <th>Layout</th>
+                                    <th>Sequencial</th>
+                                    <th>Geração</th>
+                                    <th>UG Resp.</th>
+                                    <th>Itens XML</th>
+                                    <th>Processados</th>
+                                    <th>Status</th>
+                                    <th>Log</th>
+                                </tr>
+                            </thead>
+                            <tbody id="full-batches-rows">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="section-integration" class="section-container" style="display: none;">
+                <div class="card">
+                    <h3 class="card-title">Integration & Templates Downloads</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Download template load files to check layouts and test processing jobs.</p>
+                    <div class="sample-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <a href="/api/siafi/samples/dh/xml" class="btn btn-secondary" style="height: 60px;">📄 DH001 XML Template</a>
+                        <a href="/api/siafi/samples/pf/xml" class="btn btn-secondary" style="height: 60px;">📄 PF001 XML Template</a>
+                        <a href="/api/siafi/samples/dh/csv" class="btn btn-secondary" style="height: 60px;">📊 DH001 CSV Template</a>
+                        <a href="/api/siafi/samples/pf/csv" class="btn btn-secondary" style="height: 60px;">📊 PF001 CSV Template</a>
+                    </div>
+                </div>
+            </div>
+
+            <div id="section-records" class="section-container" style="display: none;">
+                <div class="card">
+                    <h3 class="card-title">Database Records Explorer</h3>
+                    <div class="tab-nav" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
+                        <button class="tab-btn active" id="btn-tab-records-dh" onclick="toggleRecordsSubTab('dh')">Registros DH001</button>
+                        <button class="tab-btn" id="btn-tab-records-pf" onclick="toggleRecordsSubTab('pf')">Registros PF001</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="batch-table" id="full-dh-records-table">
+                            <thead>
+                                <tr>
+                                    <th>Carga ID</th>
+                                    <th>UG Emitente</th>
+                                    <th>Número DH</th>
+                                    <th>Valor</th>
+                                    <th>Credor/Devedor</th>
+                                    <th>Processo</th>
+                                    <th>Vencimento</th>
+                                </tr>
+                            </thead>
+                            <tbody id="full-dh-records-rows"></tbody>
+                        </table>
+                        <table class="batch-table" id="full-pf-records-table" style="display: none;">
+                            <thead>
+                                <tr>
+                                    <th>Carga ID</th>
+                                    <th>Tipo PF</th>
+                                    <th>UG Emitente</th>
+                                    <th>Favorecida</th>
+                                    <th>Valor</th>
+                                    <th>Fonte Recurso</th>
+                                    <th>Doc. Financeiro</th>
+                                </tr>
+                            </thead>
+                            <tbody id="full-pf-records-rows"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="section-settings" class="section-container" style="display: none;">
+                <div class="card">
+                    <h3 class="card-title">System Settings</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Manage batch integration settings and in-memory databases.</p>
+                    <button class="btn btn-danger" onclick="triggerClearDb()" style="width: auto;">Clear Database History</button>
+                    <a href="/h2-console" target="_blank" class="btn btn-secondary" style="width: auto; margin-left: 1rem;">Open H2 Database Web Console</a>
+                </div>
+            </div>
+
+            <div id="section-logs" class="section-container" style="display: none;">
+                <div class="card">
+                    <h3 class="card-title">Integration Activity Logs</h3>
+                    <div class="drawer-body" id="full-logs-viewer" style="height: 400px; font-family: monospace; font-size: 0.9rem; color: #38bdf8; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border);">
+[SYSTEM] Monitoring active on watch directory...
+[SYSTEM] H2 Database initialized at jdbc:h2:mem:siafidb
+[SYSTEM] Spring Batch components fully wired.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Logs Drawer Overlay -->
+    <div class="drawer" id="logs-drawer">
+        <div class="drawer-header">
+            <h3 class="card-title" style="margin: 0;">Batch Processing Log</h3>
+            <button class="drawer-close" onclick="closeDrawer()">&times;</button>
+        </div>
+        <p id="drawer-subtitle" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;"></p>
+        <div class="drawer-body" id="drawer-content">
+            No logs available.
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast" id="toast">
+        <span id="toast-message">Notification Message</span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

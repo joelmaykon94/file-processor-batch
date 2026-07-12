@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sb:arquivo xmlns:sb="http://www.tesouro.gov.br/siafi/submissao">
+    <sb:header>
+        <sb:codigoLayout>PF001</sb:codigoLayout>
+        <sb:dataGeracao>13/05/2016</sb:dataGeracao>
+        <sb:sequencialGeracao>506</sb:sequencialGeracao>
+        <sb:anoReferencia>2016</sb:anoReferencia>
+        <sb:ugResponsavel>160075</sb:ugResponsavel>
+        <sb:cpfResponsavel>99999999999</sb:cpfResponsavel>
+    </sb:header>
+    <sb:detalhes><sb:detalhe><ns3:PFDTO xmlns:ns3="http://www.tesouro.gov.br/siafi/services/pf/manterProgramacaoFinanceira">
+<tipoPF>TRF</tipoPF>
+<observacao>D MT00813        TRANSF DE LIMITE SAQUE CONFORME PEDIDO:10052016348</observacao>
+<codUgEmit>160075</codUgEmit>
+<codUgFavorecida>160348</codUgFavorecida>
+<limiteDeSaque>true</limiteDeSaque>
+<listaItemPFDTO>
+<vlr>          850.00</vlr>
+<codVinc>415</codVinc>
+<codFontRecur>0100000000</codFontRecur>
+<codCtgoGasto>D</codCtgoGasto>
+<codSit>TRF020</codSit>
+<txtInscrA>675901</txtInscrA></listaItemPFDTO>
+<numeroDocumento>465355</numeroDocumento></ns3:PFDTO></sb:detalhe></sb:detalhes>
+    <sb:trailler>
+        <sb:quantidadeDetalhe>1</sb:quantidadeDetalhe>
+    </sb:trailler>
+</sb:arquivo>

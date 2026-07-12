@@ -1,0 +1,2 @@
+layout,tipoPF,observacao,codUgEmit,codUgFavorecida,limiteDeSaque,vlr,codVinc,codFontRecur,codCtgoGasto,codSit,txtInscrA,numeroDocumento
+PF001,TRF,CSV PF LOAD TEST,160075,160348,true,9900.00,415,0100000000,D,TRF020,675901,889900

@@ -1,6 +1,5 @@
 package com.radcortez.wow.auctions.entity;
 
-import com.radcortez.wow.auctions.mapper.ConnectedRealmMapper;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import lombok.Builder;
 import lombok.Data;
@@ -72,6 +71,17 @@ public class ConnectedRealm extends PanacheEntityBase {
     }
 
     public ConnectedRealm update(final ConnectedRealm connectedRealm) {
-        return ConnectedRealmMapper.INSTANCE.toEntity(this, connectedRealm);
+        connectedRealm.setRegion(this.region);
+        if (this.realms != null) {
+            connectedRealm.getRealms().clear();
+            for (Realm r : this.realms) {
+                connectedRealm.addRealm(r);
+            }
+        }
+        if (this.files != null) {
+            connectedRealm.getFiles().clear();
+            connectedRealm.getFiles().addAll(this.files);
+        }
+        return connectedRealm;
     }
 }

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sb:arquivo xmlns:sb="http://www.tesouro.gov.br/siafi/submissao">
+    <sb:header>
+        <sb:codigoLayout>DH001</sb:codigoLayout>
+        <sb:dataGeracao>11/07/2026</sb:dataGeracao>
+        <sb:sequencialGeracao>1001</sb:sequencialGeracao>
+        <sb:anoReferencia>2026</sb:anoReferencia>
+        <sb:ugResponsavel>080014</sb:ugResponsavel>
+        <sb:cpfResponsavel>99999999999</sb:cpfResponsavel>
+    </sb:header>
+    <sb:detalhes>
+        <sb:detalhe>
+            <cpr:CprDhCadastrar xmlns:cpr="http://services.docHabil.cpr.siafi.tesouro.fazenda.gov.br/">
+                <codUgEmit>080014</codUgEmit>
+                <anoDH>2026</anoDH>
+                <codTipoDH>NP</codTipoDH>
+                <numDH>990101</numDH>
+                <dadosBasicos>
+                    <dtEmis>2026-07-10</dtEmis>
+                    <dtVenc>2026-07-15</dtVenc>
+                    <codUgPgto>080014</codUgPgto>
+                    <vlr>1500.00</vlr>
+                    <txtObser>INTEGRACAO BATCH EXEMPLE DH</txtObser>
+                    <txtProcesso>12345678901234567890</txtProcesso>
+                    <codCredorDevedor>05462743000954</codCredorDevedor>
+                </dadosBasicos>
+            </cpr:CprDhCadastrar>
+        </sb:detalhe>
+    </sb:detalhes>
+    <sb:trailler>
+        <sb:quantidadeDetalhe>1</sb:quantidadeDetalhe>
+    </sb:trailler>
+</sb:arquivo>

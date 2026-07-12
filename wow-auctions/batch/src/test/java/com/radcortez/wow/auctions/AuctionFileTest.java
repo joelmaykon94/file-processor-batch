@@ -1,8 +1,10 @@
-package com.radcortez.wow.auctions.entity;
+package com.radcortez.wow.auctions;
 
 import com.radcortez.flyway.test.annotation.DataSource;
 import com.radcortez.flyway.test.annotation.FlywayTest;
-import com.radcortez.wow.auctions.QuarkusDataSourceProvider;
+import com.radcortez.wow.auctions.entity.AuctionFile;
+import com.radcortez.wow.auctions.entity.ConnectedRealm;
+import com.radcortez.wow.auctions.entity.FileStatus;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 

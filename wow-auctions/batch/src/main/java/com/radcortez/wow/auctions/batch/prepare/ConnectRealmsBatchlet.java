@@ -4,8 +4,8 @@ import com.radcortez.wow.auctions.api.ApiConfig;
 import com.radcortez.wow.auctions.api.ConnectedRealmsApi;
 import com.radcortez.wow.auctions.api.LocationApi;
 import com.radcortez.wow.auctions.entity.ConnectedRealm;
+import com.radcortez.wow.auctions.mapper.ConnectedRealmMapper;
 import lombok.extern.java.Log;
-import org.eclipse.microprofile.config.Config;
 
 import jakarta.batch.api.AbstractBatchlet;
 import jakarta.batch.runtime.BatchStatus;
@@ -51,7 +51,7 @@ public class ConnectRealmsBatchlet extends AbstractBatchlet {
             return;
         }
 
-        ConnectedRealm connectedRealmEntity = connectedRealm.toEntity(apiConfig.region());
+        ConnectedRealm connectedRealmEntity = ConnectedRealmMapper.INSTANCE.toEntity(connectedRealm, apiConfig.region().toUpperCase());
         ConnectedRealm.<ConnectedRealm>findByIdOptional(connectedRealm.getId())
             .ifPresentOrElse(connectedRealmEntity::update, connectedRealmEntity::create);
     }
