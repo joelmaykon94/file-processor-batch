@@ -1,43 +1,50 @@
-# file-processor-batch
+# File Processor Batch - Spring Batch Projects
 
-# Spring Batch: Performance e Validação Local para Produção
+Este repositório contém projetos focados em processamento de arquivos em lote (Batch Processing) e conformidade arquitetural.
 
-## 1. Persistência (`JobRepository`)
-- Armazena metadados (status, parâmetros) em banco de dados.
-- Permite restart, monitoramento e evita reprocessamento.
-- Em testes, pode-se usar repositório em memória (`MapJobRepositoryFactoryBean`).
+---
 
-## 2. Processamento em Memória (Chunk)
-- Lê, processa e acumula itens em memória até o `commit-interval`.
-- Exemplo: `chunk(10)` processa 10 itens antes de commitar.
-- Balanceamento: chunks menores = menos memória, mais commits; chunks maiores = mais memória, maior throughput.
+## 🚀 Projeto em Destaque: SIAFI Batch File Integration
 
-## 3. Estratégias de Paralelismo (Testáveis Localmente)
+O **SIAFI Batch File Integration** é um sistema completo e de alta performance baseado em **Spring Boot 3.x** e **Spring Batch 5.x** desenvolvido para automatizar e monitorar a importação de arquivos de carga nos layouts transacionais oficiais do Tesouro Nacional:
+*   **Documento Hábil (DH001)**: Ingestão de Notas de Lançamento (NL) e compromissos.
+*   **Programação Financeira (PF001)**: Ingestão de solicitações de saques e transferências de recursos.
 
-| Estratégia | Descrição | Quando Usar |
-|------------|-----------|-------------|
-| **Multi-threaded Step** | Processa chunks em múltiplas threads | Processamento intensivo de CPU (exige `ItemProcessor` thread-safe) |
-| **Parallel Steps** | Executa steps independentes em paralelo | Steps que não dependem entre si |
-| **Local Partitioning** | Divide dados em partições e processa em paralelo | Gargalo em leitura/escrita (I/O) |
+O sistema suporta tanto os arquivos **XML oficiais** com namespaces complexos do governo quanto arquivos estruturados em **CSV**.
 
-## 4. Validação de Performance Local
-- **Profiling**: VisualVM, JProfiler, YourKit (CPU, memória, I/O).
-- **Métricas**: Spring Boot Actuator (tempo de execução, itens processados).
-- **Logs**: Identificar etapas mais lentas.
+### 🎨 Painel de Controle Web (Glassmorphism UI)
+A aplicação conta com um painel de controle web integrado acessível localmente:
 
-## 5. Cuidados para Produção
-- Configurações que funcionam localmente podem não escalar com grandes volumes.
-- Teste em homologação com dados e hardware próximos à produção.
-- Ajuste fino de `chunk size`, `pool-size` e `grid-size` conforme o ambiente.
+![SIAFI Dashboard Preview](siafi-batch-processor/docs/images/siafi_dashboard_mockup.jpg)
 
-## 6. Habilidades Essenciais
-- Configurar `JobRepository` e `DataSource`.
-- Dominar `ItemReader`, `ItemProcessor`, `ItemWriter`.
-- Ajustar tamanho do chunk e políticas de `skip`/`retry`.
-- Implementar `faultTolerant()` para tolerância a falhas.
-- Testar com `@SpringBatchTest` e repositórios em memória.
+### 🏗️ Arquitetura e Decisões de Design (Clean & Hexagonal)
+*   **Isolamento Estrito de DTOs (Java Records)**: A camada de apresentação (REST Controllers) interage unicamente com registros imutáveis (Records) para evitar o vazamento de entidades JPA de persistência.
+*   **Watch Folder (Folder-based Auto-consumption)**: Serviço integrado monitora uma pasta do sistema de arquivos (`incoming/`) a cada 10 segundos, disparando os jobs correspondentes de forma 100% autônoma.
+*   **Chunk-Oriented Processing**: Processamento em fatias (commits periódicos de 5 em 5 registros) para garantir consistência financeira, baixo consumo de memória e rollbacks isolados em caso de falha.
+*   **Central de Notificações**: Barramento reativo no topo do cabeçalho que reporta em tempo real no dashboard quando novos arquivos são processados na watch folder.
 
-## Resumo
-- **Desenvolva e teste localmente** com paralelismo single-process.
-- **Monitore e ajuste** usando profiling e métricas.
-- **Valide em homologação** com dados reais antes de produzir.
+---
+
+## 🛠️ Como Executar o SIAFI Batch Processor
+
+1.  Entre na pasta do projeto:
+    ```bash
+    cd siafi-batch-processor
+    ```
+2.  Compile o código:
+    ```bash
+    ./mvnw clean compile
+    ```
+3.  Execute a aplicação Spring Boot:
+    ```bash
+    ./mvnw spring-boot:run
+    ```
+4.  Abra o painel no navegador:
+    👉 **`http://localhost:8080/`** (Use as credenciais pré-preenchidas para logar).
+
+---
+
+## 📂 Outros Projetos no Repositório
+
+*   **[`wow-auctions/`](file:///home/joelmaykon/file-processor-batch/wow-auctions/)**: Microsserviço Quarkus de processamento de leilões do WoW. Foi corrigido para eliminar dependências cíclicas entre mapeadores e modelos da API, além de mover testes unitários da pasta de domínio para assegurar conformidade com as regras de Balanced Architecture Governance.
+*   **[`gs-batch-processing/`](file:///home/joelmaykon/file-processor-batch/gs-batch-processing/)**: Projeto de referência do guia oficial do Spring Batch.
