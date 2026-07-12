@@ -1,8 +1,8 @@
 package com.example.siafibatch.config;
 
-import com.example.siafibatch.model.DhCarga;
+import com.example.siafibatch.batch.DhItemReader;
+import com.example.siafibatch.batch.PfItemReader;
 import com.example.siafibatch.model.DhDetalhe;
-import com.example.siafibatch.model.PfCarga;
 import com.example.siafibatch.model.PfDetalhe;
 import com.example.siafibatch.repository.DhCargaRepository;
 import com.example.siafibatch.repository.DhDetalheRepository;
@@ -23,13 +23,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 @Configuration
 public class BatchConfig {
@@ -82,69 +75,12 @@ public class BatchConfig {
     @Bean
     @StepScope
     public ItemReader<DhDetalhe> dhReader(@Value("#{jobParameters['filePath']}") String filePath) {
-        return new ItemReader<DhDetalhe>() {
-            private Iterator<DhDetalhe> iterator;
-            private DhCarga savedCarga;
-
-            @Override
-            public DhDetalhe read() throws Exception {
-                if (iterator == null) {
-                    File file = new File(filePath);
-                    try (InputStream is = new FileInputStream(file)) {
-                        Object parsed;
-                        if (file.getName().endsWith(".csv")) {
-                            parsed = csvParser.parseSiafiFile(is, file.getName());
-                        } else {
-                            parsed = xmlParser.parseSiafiFile(is, file.getName());
-                        }
-                        
-                        if (parsed instanceof DhCarga) {
-                            DhCarga dhCarga = (DhCarga) parsed;
-                            // Save Carga header first to get ID
-                            dhCarga.setStatus("PROCESSING");
-                            this.savedCarga = dhCargaRepository.save(dhCarga);
-                            
-                            List<DhDetalhe> details = new ArrayList<>(dhCarga.getDetalhes());
-                            // Associate child elements
-                            for (DhDetalhe d : details) {
-                                d.setDhCarga(this.savedCarga);
-                            }
-                            this.iterator = details.iterator();
-                        } else {
-                            throw new IllegalArgumentException("Parsed file is not a Documento Habil (DH) layout.");
-                        }
-                    } catch (Exception e) {
-                        // Create failed Carga log
-                        DhCarga failed = new DhCarga();
-                        failed.setFileName(file.getName());
-                        failed.setCodigoLayout("DH001");
-                        failed.setStatus("FAILED");
-                        failed.setLogProcessamento("Error parsing file: " + e.getMessage());
-                        dhCargaRepository.save(failed);
-                        throw e;
-                    }
-                }
-
-                if (iterator.hasNext()) {
-                    return iterator.next();
-                } else {
-                    // Update header status when finished reading all items
-                    if (savedCarga != null) {
-                        savedCarga.setStatus("SUCCESS");
-                        savedCarga.setQuantidadeDetalhesProcessados(savedCarga.getQuantidadeDetalhesXml());
-                        savedCarga.setLogProcessamento("All items parsed and written to the database successfully.");
-                        dhCargaRepository.save(savedCarga);
-                    }
-                    return null; // EOF
-                }
-            }
-        };
+        return new DhItemReader(filePath, xmlParser, csvParser, dhCargaRepository);
     }
 
     @Bean
     public ItemProcessor<DhDetalhe, DhDetalhe> dhProcessor() {
         return item -> {
-            // Apply formatting / cleanups / business rules
             if (item.getTxtObser() != null) {
                 item.setTxtObser(item.getTxtObser().toUpperCase());
             }
@@ -188,59 +124,7 @@ public class BatchConfig {
     @Bean
     @StepScope
     public ItemReader<PfDetalhe> pfReader(@Value("#{jobParameters['filePath']}") String filePath) {
-        return new ItemReader<PfDetalhe>() {
-            private Iterator<PfDetalhe> iterator;
-            private PfCarga savedCarga;
-
-            @Override
-            public PfDetalhe read() throws Exception {
-                if (iterator == null) {
-                    File file = new File(filePath);
-                    try (InputStream is = new FileInputStream(file)) {
-                        Object parsed;
-                        if (file.getName().endsWith(".csv")) {
-                            parsed = csvParser.parseSiafiFile(is, file.getName());
-                        } else {
-                            parsed = xmlParser.parseSiafiFile(is, file.getName());
-                        }
-
-                        if (parsed instanceof PfCarga) {
-                            PfCarga pfCarga = (PfCarga) parsed;
-                            pfCarga.setStatus("PROCESSING");
-                            this.savedCarga = pfCargaRepository.save(pfCarga);
-
-                            List<PfDetalhe> details = new ArrayList<>(pfCarga.getDetalhes());
-                            for (PfDetalhe p : details) {
-                                p.setPfCarga(this.savedCarga);
-                            }
-                            this.iterator = details.iterator();
-                        } else {
-                            throw new IllegalArgumentException("Parsed file is not a Programacao Financeira (PF) layout.");
-                        }
-                    } catch (Exception e) {
-                        PfCarga failed = new PfCarga();
-                        failed.setFileName(file.getName());
-                        failed.setCodigoLayout("PF001");
-                        failed.setStatus("FAILED");
-                        failed.setLogProcessamento("Error parsing file: " + e.getMessage());
-                        pfCargaRepository.save(failed);
-                        throw e;
-                    }
-                }
-
-                if (iterator.hasNext()) {
-                    return iterator.next();
-                } else {
-                    if (savedCarga != null) {
-                        savedCarga.setStatus("SUCCESS");
-                        savedCarga.setQuantidadeDetalhesProcessados(savedCarga.getQuantidadeDetalhesXml());
-                        savedCarga.setLogProcessamento("All items parsed and written to the database successfully.");
-                        pfCargaRepository.save(savedCarga);
-                    }
-                    return null; // EOF
-                }
-            }
-        };
+        return new PfItemReader(filePath, xmlParser, csvParser, pfCargaRepository);
     }
 
     @Bean

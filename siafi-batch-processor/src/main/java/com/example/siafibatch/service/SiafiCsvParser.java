@@ -22,11 +22,7 @@ public class SiafiCsvParser {
                 throw new IllegalArgumentException("Empty CSV file.");
             }
 
-            // Simple header parsing logic: columns separated by comma or semicolon
             String delimiter = headerLine.contains(";") ? ";" : ",";
-            String[] headers = headerLine.split(delimiter);
-
-            // Read the first data line to determine layout or check headers
             String dataLine = reader.readLine();
             if (dataLine == null) {
                 throw new IllegalArgumentException("CSV file has header but no data rows.");
@@ -36,89 +32,73 @@ public class SiafiCsvParser {
             String layout = firstRow[0].replace("\"", "").trim();
 
             if ("DH001".equalsIgnoreCase(layout)) {
-                DhCarga dhCarga = new DhCarga();
-                dhCarga.setFileName(fileName);
-                dhCarga.setCodigoLayout("DH001");
-                dhCarga.setDataGeracao("CSV_IMPORT");
-                dhCarga.setSequencialGeracao("1001");
-                dhCarga.setAnoReferencia("2026");
-                dhCarga.setUgResponsavel("SYSTEM");
-                dhCarga.setCpfResponsavel("99999999999");
-                dhCarga.setDataProcessamento(LocalDateTime.now());
-
-                // Process first row
-                dhCarga.addDetalhe(parseDhRow(firstRow));
-                int totalRows = 1;
-
-                // Process remaining rows
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.trim().isEmpty()) continue;
-                    String[] row = line.split(delimiter);
-                    dhCarga.addDetalhe(parseDhRow(row));
-                    totalRows++;
-                }
-
-                dhCarga.setQuantidadeDetalhesXml(totalRows);
-                return dhCarga;
-
+                return buildDhCarga(reader, firstRow, delimiter, fileName);
             } else if ("PF001".equalsIgnoreCase(layout)) {
-                PfCarga pfCarga = new PfCarga();
-                pfCarga.setFileName(fileName);
-                pfCarga.setCodigoLayout("PF001");
-                pfCarga.setDataGeracao("CSV_IMPORT");
-                pfCarga.setSequencialGeracao("2001");
-                pfCarga.setAnoReferencia("2026");
-                pfCarga.setUgResponsavel("SYSTEM");
-                pfCarga.setCpfResponsavel("99999999999");
-                pfCarga.setDataProcessamento(LocalDateTime.now());
-
-                // Process first row
-                pfCarga.addDetalhe(parsePfRow(firstRow));
-                int totalRows = 1;
-
-                // Process remaining rows
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.trim().isEmpty()) continue;
-                    String[] row = line.split(delimiter);
-                    pfCarga.addDetalhe(parsePfRow(row));
-                    totalRows++;
-                }
-
-                pfCarga.setQuantidadeDetalhesXml(totalRows);
-                return pfCarga;
+                return buildPfCarga(reader, firstRow, delimiter, fileName);
             } else {
                 throw new IllegalArgumentException("Unknown layout in CSV: " + layout + ". Must be DH001 or PF001");
             }
         }
     }
 
+    private DhCarga buildDhCarga(BufferedReader reader, String[] firstRow, String delimiter, String fileName) throws Exception {
+        DhCarga dhCarga = new DhCarga();
+        dhCarga.setFileName(fileName);
+        dhCarga.setCodigoLayout("DH001");
+        dhCarga.setDataGeracao("CSV_IMPORT");
+        dhCarga.setSequencialGeracao("1001");
+        dhCarga.setAnoReferencia("2026");
+        dhCarga.setUgResponsavel("SYSTEM");
+        dhCarga.setCpfResponsavel("99999999999");
+        dhCarga.setDataProcessamento(LocalDateTime.now());
+
+        // Process first row
+        dhCarga.addDetalhe(parseDhRow(firstRow));
+        int totalRows = 1;
+
+        // Process remaining rows
+        String line;
+        while ((line = reader.readLine()) != null) {
+            if (line.trim().isEmpty()) continue;
+            String[] row = line.split(delimiter);
+            dhCarga.addDetalhe(parseDhRow(row));
+            totalRows++;
+        }
+
+        dhCarga.setQuantidadeDetalhesXml(totalRows);
+        return dhCarga;
+    }
+
+    private PfCarga buildPfCarga(BufferedReader reader, String[] firstRow, String delimiter, String fileName) throws Exception {
+        PfCarga pfCarga = new PfCarga();
+        pfCarga.setFileName(fileName);
+        pfCarga.setCodigoLayout("PF001");
+        pfCarga.setDataGeracao("CSV_IMPORT");
+        pfCarga.setSequencialGeracao("2001");
+        pfCarga.setAnoReferencia("2026");
+        pfCarga.setUgResponsavel("SYSTEM");
+        pfCarga.setCpfResponsavel("99999999999");
+        pfCarga.setDataProcessamento(LocalDateTime.now());
+
+        // Process first row
+        pfCarga.addDetalhe(parsePfRow(firstRow));
+        int totalRows = 1;
+
+        // Process remaining rows
+        String line;
+        while ((line = reader.readLine()) != null) {
+            if (line.trim().isEmpty()) continue;
+            String[] row = line.split(delimiter);
+            pfCarga.addDetalhe(parsePfRow(row));
+            totalRows++;
+        }
+
+        pfCarga.setQuantidadeDetalhesXml(totalRows);
+        return pfCarga;
+    }
+
     private DhDetalhe parseDhRow(String[] row) {
         DhDetalhe d = new DhDetalhe();
-        // Index mapping:
-        // 0: layout (DH001)
-        // 1: codUgEmit
-        // 2: anoDh
-        // 3: codTipoDh
-        // 4: numDh
-        // 5: dtEmis
-        // 6: dtVenc
-        // 7: codUgPgto
-        // 8: vlr
-        // 9: txtObser
-        // 10: txtProcesso
-        // 11: dtAteste
-        // 12: codCredorDevedor
-        // 13: dtPgtoReceb
-        // 14: docOrigemIdentEmit
-        // 15: docOrigemNum
-        // 16: docOrigemVlr
-        // 17: pcoSit
-        // 18: pcoUgEmpe
-        // 19: pcoEmpeNum
-        // 20: pcoVlr
-
         d.setCodUgEmit(valAt(row, 1));
         d.setAnoDh(valAt(row, 2));
         d.setCodTipoDh(valAt(row, 3));
@@ -146,21 +126,6 @@ public class SiafiCsvParser {
     }
 
     private PfDetalhe parsePfRow(String[] row) {
-        // Index mapping:
-        // 0: layout (PF001)
-        // 1: tipoPF
-        // 2: observacao
-        // 3: codUgEmit
-        // 4: codUgFavorecida
-        // 5: limiteDeSaque
-        // 6: vlr
-        // 7: codVinc
-        // 8: codFontRecur
-        // 9: codCtgoGasto
-        // 10: codSit
-        // 11: txtInscrA
-        // 12: numeroDocumento
-
         PfDetalhe p = new PfDetalhe();
         p.setTipoPf(valAt(row, 1));
         p.setObservacao(valAt(row, 2));
